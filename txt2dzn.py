@@ -81,6 +81,8 @@ class Instance:
             elif line[0] == 'P':
                 self.precedenceConstraints.append(PrecedenceConstraint(line.split()))
 
+    
+
 
 def readSplitLine(f):
     return f.readline().split()
