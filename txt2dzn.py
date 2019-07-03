@@ -1,18 +1,24 @@
 import sys
 
+
 class Road:
     def __init__(self, line):
-        self.id = line[0]
+        self.id = int(line[0])
         triples = line[1:]
-        self.triples = map(lambda x: x.split(':'), triples)
+        self.triples = list(map(lambda trip:
+                                list(map(int, trip.split(':'))), triples))
+
 
 class Workcenter:
     def __init__(self, line):
+        line = lineToIntList(line)
         self.id = line[0]
         self.availableWorkers = line[1]
 
+
 class Worksheet:
     def __init__(self, line):
+        line = lineToIntList(line)
         self.id = line[0]
         self.workcenter = line[1]
         self.mandatory = line[2]
@@ -22,21 +28,29 @@ class Worksheet:
         self.duration = line[6]
 
         # Roads / activities
-        roadIDend = 7+self.duration
+        roadIDend = 7 + self.duration
         self.roadIDs = line[7:roadIDend]
         self.requiredWorkers = line[roadIDend:]
 
+
 class MaximumBlockedConstraint:
     def __init__(self, l):
-        self.maxBlocked = l[1]
-        self.roadIDs = l[2:]
+        l = lineToIntList(l[1:])
+        self.maxBlocked = l[0]
+        self.roadIDs = l[1:]
+
 
 # Precedence constraints
+class PrecedenceConstraint:
+    def __init__(self, l):
+        self.orderWorksheetIDs = lineToIntList(l[1:])
+
 
 class Instance:
     def __init__(self, f):
         # First line
-        line = f.readLine().split()
+        line = readSplitLine(f)
+        line = lineToIntList(line)
         self.days = line[0]
         self.numRoads = line[1]
         self.numWorkCenters = line[2]
@@ -60,31 +74,40 @@ class Instance:
 
         # Maximum blocked roads and precedence
         self.maximumBlocked = []
-        # self.precedence
-        while line in f:
+        self.precedenceConstraints = []
+        for line in f:
             if line[0] == 'M':
                 self.maximumBlocked.append(MaximumBlockedConstraint(line.split()))
-                
-
-
-
+            elif line[0] == 'P':
+                self.precedenceConstraints.append(PrecedenceConstraint(line.split()))
 
 
 def readSplitLine(f):
-    return f.readLine().split()
-
-expArgs = 1
-
-if len(sys.argv) < 2:
-    print("Too few arguments supplied")
-    exit(1)
-
-inFileName = sys.argv[1]
-
-# print(inFileName)
-
-inst = None
+    return f.readline().split()
 
 
-with open(inFileName) as f:
-    inst = Instance(f)
+def lineToIntList(line):
+    return list(map(int, line))
+
+
+def main():
+    expArgs = 1
+
+    if len(sys.argv) < 2:
+        print("Too few arguments supplied")
+        exit(1)
+
+    inFileName = sys.argv[1]
+
+    # print(inFileName)
+
+    inst = None
+
+    with open(inFileName) as f:
+        inst = Instance(f)
+
+    # print(inst.workcenters[0].availableWorkers)
+
+
+if __name__ == '__main__':
+    main()
