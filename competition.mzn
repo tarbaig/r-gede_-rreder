@@ -62,6 +62,11 @@ constraint max(act_ending_times) <= horizon;
 % constraint the maximum number of roads the be blocked at the same time to be 
 %ADD LATER 
 
+array[days, roads] of bool isRoadBlocked;
+array[days] of int nblockedRoads;
+
+constraint forall (d in days, r in roads) (bR =  )
+
 %constarint the work center capacity. The data structures for that are not even active jet
 %ADD LATER 
 
