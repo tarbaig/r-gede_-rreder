@@ -55,6 +55,7 @@ constraint forall(s in work_sheet)(east[s] < t_w_k[s])
 constraint forall(s in work_sheet)(p in precedence[s])(t_w_k[p] + duration[p] <= t_w_k[s]);
 
 %max horizon constraint
+constraint max(act_ending_times) <= horizon;
 
 % constraint the maximum number of roads the be blocked at the same time to be 
 %ADD LATER 
@@ -70,4 +71,6 @@ constraint forall(s in work_sheet)(a in activities where a not in sheet_to_first
 constraint forall(s in work_sheet)(a in activities where a not in sheet_to_first_act)(act_ending_times[a]=act_starting_times[a-1]+1)
 % define objective funtion and solve
 
+obj = max( [pertubation_cost[roads[a],act_starting_time[a]] | a in activities])
 
+solve maximize obj
