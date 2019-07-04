@@ -1,5 +1,5 @@
 import sys
-
+import time
 
 class Road:
     def __init__(self, line):
@@ -42,8 +42,16 @@ class MaximumBlockedConstraint:
 
 # Precedence constraints
 class PrecedenceConstraint:
-    def __init__(self, l):
-        self.orderWorksheetIDs = lineToIntList(l[1:])
+    def __init__(self, b, a):
+        self.before = b
+        self.after = a
+
+    def toTuple(self):
+        return (self.before, self.after)
+
+    def fromLine(l):
+        l = lineToIntList(l[1:])
+        return PrecedenceConstraint(l[0],l[1])
 
 
 class Instance:
@@ -74,14 +82,33 @@ class Instance:
 
         # Maximum blocked roads and precedence
         self.maximumBlocked = []
-        self.precedenceConstraints = []
+        self.precedenceConstraints = set()
+
         for line in f:
             if line[0] == 'M':
                 self.maximumBlocked.append(MaximumBlockedConstraint(line.split()))
             elif line[0] == 'P':
-                self.precedenceConstraints.append(PrecedenceConstraint(line.split()))
+                self.precedenceConstraints.add(PrecedenceConstraint.fromLine(line.split()).toTuple())
 
-    
+    def findImpliedPrecedenceConstraints(self):
+        changed = True
+        oldSet = self.precedenceConstraints.copy()
+        newSet = None
+        while changed:  # Supposed to be a fixpoint calculation
+            changed = False
+
+            implied = [(bef1, af2)
+               for (bef1, af1) in oldSet
+               for (bef2, af2) in oldSet
+               if af1 == bef2]
+
+            newSet = oldSet.copy().union(set(implied))
+
+            if oldSet != newSet:
+                changed = True
+                oldSet = newSet
+
+        self.precedenceConstraints = newSet
 
 
 def readSplitLine(f):
@@ -107,6 +134,13 @@ def main():
 
     with open(inFileName) as f:
         inst = Instance(f)
+
+    starttime = time.time()
+    inst.findImpliedPrecedenceConstraints()
+    endtime = time.time()
+    print("Finding implied: %f" % (endtime-starttime))
+
+
 
     # print(inst.workcenters[0].availableWorkers)
 
