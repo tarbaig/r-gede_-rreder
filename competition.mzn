@@ -2,10 +2,12 @@
 int : n_work_sheets; % number of work sheets in the problem
 int : m_activities; % number of activities in the problem
 int : horizon; % maximum scheduling time horizon
+int : l_roads;
 
 set of int: work_sheets = 0..n_work_sheets-1; %index set used to later access the arrays
 set of int: activities = 0..m_activities-1;
 set of int: days = 0..horizon-1;
+set of int: roads=0...l_roads-1;
 
 % it is assumed that activities that belong to the samne sheet are consecutive and that precedence is encoded by order !
 array[work_sheets] of int: east; % when to start the sheet earliest
@@ -14,7 +16,7 @@ array[work_sheets] of int: last; % when to start latest
 array[work_sheets] of set of int: precedence; % which sheet needs to be done before which sheet, this should be in 
 array[work_sheets] of set of int: duration;
 
-array[activities] of int: roads; % mapping form activities to roads
+array[activities] of int: activities_to_roads; % mapping form activities to roads
 array[roads,day] of int: pertubation_cost ; % how much building on this day hurts; If this can be a funtion in minizinc make it so!
 
 % we will need these later but initially all sheets are mandratory hence we do not need them now
@@ -68,9 +70,9 @@ constraint max(act_ending_times) <= horizon;
 % constarint all activities of a sheet ( those between start and end ) to start after their predecessor ended
 constraint forall(s in work_sheet)(a in activities where a not in sheet_to_first_act)(act_starting_times[a]=act_starting_times[a-1]+1) %this can be improved by adding constraints that reach farther [a]=[a-2]+2 ... an itterator over or by constrining to the offset from the first activity of the sheet? [a]=[first of sheet] + a-first_of_sheet
 %
-constraint forall(s in work_sheet)(a in activities where a not in sheet_to_first_act)(act_ending_times[a]=act_starting_times[a-1]+1)
+constraint forall(s in work_sheet)(a in activities where a not in sheet_to_first_act)(act_ending_times[a]=act_starting_times[a]+1)
 % define objective funtion and solve
 
-obj = max( [pertubation_cost[roads[a],act_starting_time[a]] | a in activities])
+obj = max( [pertubation_cost[activities_to_roads[a],act_starting_time[a]] | a in activities])
 
 solve maximize obj
