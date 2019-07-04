@@ -72,7 +72,7 @@ constraint forall(s in work_sheets)(
                     (act_starting_times[a]=act_starting_times[a-1]+1)); %this can be improved by adding constraints that reach farther [a]=[a-2]+2 ... an itterator over or by constrining to the offset from the first activity of the sheet? [a]=[first of sheet] + a-first_of_sheet
 %
 constraint forall(s in work_sheets)(
-                  forall(a in activities where not (a  in set_sheet_to_first_act))
+                  forall(a in activities)
                     (act_ending_times[a]=act_starting_times[a]+1));
 % define objective funtion and solve
 
