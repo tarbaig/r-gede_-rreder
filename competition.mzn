@@ -27,14 +27,19 @@ set of int: roads=1..l_roads;
 % array[work_sheets] of var bool: g_k; % is worksheet k executed? This we will branch on
 % array[activities] of var bool: f_i; % is activiti i executed
 
-array[work_sheets] of var int: t_w_k; % starting time of the worksheet, this we will branch on too
+array[work_sheets] of var 1..horizon: t_w_k; % starting time of the worksheet, this we will branch on too
 
-array[activities] of var int: act_starting_times; % when do the activities start, the first activity of each sheet need to be constraint to be start at the same time as the sheet 
-% all need to be constraint to be constarint against each other 
-var set of int: set_act_starting_times = {a|a in act_starting_times};
+array[activities] of var 1..horizon: act_starting_times; % when do the activities start, the first activity of each sheet need to be constraint to be start at the same time as the sheet 
 
-array[activities] of var int: act_ending_times; %when do the activities end, this is populated by constraing
+% boolean array to have another view of the problem
+array[days, roads] of var bool : isRoadBlocked;
+array[days] of var int : nblockedRoads;
+
+
+array[activities] of var 1..horizon: act_ending_times; %when do the activities end, this is populated by constraing
 % ending times must be before the horizon
+
+array[days] of var set of 1..horizon: activities_of_day;
 
 % CONSTRAINTS TO ADD%
 
@@ -48,6 +53,7 @@ constraint forall(s in work_sheets)( act_starting_times[sheet_to_first_act[s]] =
 constraint forall(s in work_sheets)(t_w_k[s] < last[s]);
 constraint forall(s in work_sheets)(east[s] < t_w_k[s]);
 
+
 % constarint mondratory work sheets to be active
 %constraint forall(s in work_sheets) (mandratory[s] -> g_k[s]) % I AM NOT SURE IF THIS IS THE RIGHT WAY TO USE THE IMPLICATION.CHECK THAT
 
@@ -59,13 +65,12 @@ constraint forall(s in work_sheets)(
 %max horizon constraint
 constraint max(act_ending_times) <= horizon;
 
+%constraint each activitie to be in the set listing the activities per day on its day
+constraint forall(a in activities)(a in activities_of_day[act_starting_times[a]]);
+
 % constraint the maximum number of roads the be blocked at the same time to be 
 %ADD LATER 
 
-array[days, roads] of bool isRoadBlocked;
-array[days] of int nblockedRoads;
-
-constraint forall (d in days, r in roads) (bR =  )
 
 %constarint the work center capacity. The data structures for that are not even active jet
 %ADD LATER 
@@ -84,5 +89,6 @@ constraint forall(s in work_sheets)(
 
 %var int: obj = max( [pertubation_cost[activities_to_roads[a],act_starting_times[a]] | a in activities]);
 
+%constraint forall(a in activities) (isRoadBlocked[act_starting_times[a],activities_to_roads[a] ] )
 
 solve satisfy;
