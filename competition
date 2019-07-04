@@ -10,14 +10,16 @@ set of int: days = 0..horizon-1;
 % it is assumed that activities that belong to the samne sheet are consecutive and that precedence is encoded by order !
 array[work_sheets] of int: east; % when to start the sheet earliest
 array[work_sheets] of int: last; % when to start latest
-array[work_sheets] of bool: mandratory; % is this work_sheet mandratory
-array[work_sheets] of int: precedence; % which sheet needs to be done before which sheet
+%array[work_sheets] of bool: mandratory; % is this work_sheet mandratory
+array[work_sheets] of set of int: precedence; % which sheet needs to be done before which sheet, this should be in 
+array[work_sheets] of set of int: duration;
 
 array[activities] of int: roads; % mapping form activities to roads
 array[roads,day] of int: pertubation_cost ; % how much building on this day hurts; If this can be a funtion in minizinc make it so!
 
-array[work_sheets] of var bool: g_k; % is worksheet k executed? This we will branch on
-array[activities] of var bool: f_i; % is activiti i executed
+% we will need these later but initially all sheets are mandratory hence we do not need them now
+% array[work_sheets] of var bool: g_k; % is worksheet k executed? This we will branch on
+% array[activities] of var bool: f_i; % is activiti i executed
 
 
 array[work_sheets] of var int: t_w_k; % starting time of the worksheet, this we will branch on too
@@ -36,8 +38,8 @@ array[activities] of var int: act_ending_times %when do the activities end, this
 
 % CONSTRAINTS TO ADD%
 
-% Constrain activities to be active whenever their sheet is active
-constraint forall(a in activities)(f_i[a]=g_k[act_to_sheet[a]]) 
+% Constrain activities to be active whenever their sheet is active initially all sheet are mandratory hence we do not need that now
+% constraint forall(a in activities)(f_i[a]=g_k[act_to_sheet[a]]) 
 
 % constraint first activity of a work sheet to be at the same time as the starting time of the sheet 
 constraint forall(s in work_sheets)(act_starting_time[sheet_to_first_act[s]] = t_w_k[s])
@@ -47,20 +49,25 @@ constraint forall(s in work_sheet)(t_w_k[s] < last[s])
 constraint forall(s in work_sheet)(east[s] < t_w_k[s])
 
 % constarint mondratory work sheets to be active
-constraint forall(s in work_sheets) (mandratory[s] -> g_k[s]) % I AM NOT SURE IF THIS IS THE RIGHT WAY TO USE THE IMPLICATION.CHECK THAT
+%constraint forall(s in work_sheets) (mandratory[s] -> g_k[s]) % I AM NOT SURE IF THIS IS THE RIGHT WAY TO USE THE IMPLICATION.CHECK THAT
 
 % constraint worksheets to be in the reight order IFF they are active reification
+constraint forall(s in work_sheet)(p in precedence[s])(t_w_k[p] + duration[p] <= t_w_k[s]);
 
+%max horizon constraint
 
 % constraint the maximum number of roads the be blocked at the same time to be 
+%ADD LATER 
 
 %constarint the work center capacity. The data structures for that are not even active jet
+%ADD LATER 
 
 % constraint first activity of a worksheet to be at 0 if it is not activated ? Maybe if reification makes the search slow?
 
 % constarint all activities of a sheet ( those between start and end ) to start after their predecessor ended
-
+constraint forall(s in work_sheet)(a in activities where a not in sheet_to_first_act)(act_starting_times[a]=act_starting_times[a-1]+1) %this can be improved by adding constraints that reach farther [a]=[a-2]+2 ... an itterator over or by constrining to the offset from the first activity of the sheet? [a]=[first of sheet] + a-first_of_sheet
+%
+constraint forall(s in work_sheet)(a in activities where a not in sheet_to_first_act)(act_ending_times[a]=act_starting_times[a-1]+1)
 % define objective funtion and solve
-
 
 
