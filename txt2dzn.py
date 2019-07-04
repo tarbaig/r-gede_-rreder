@@ -8,6 +8,14 @@ class Road:
         self.triples = list(map(lambda trip:
                                 list(map(int, trip.split(':'))), triples))
 
+    def pertubationList(self):
+        res = []
+        for (start,end,cost) in self.triples:
+            diff = end-start
+            part = [cost]*diff
+            res += part
+        return res
+
 
 class Workcenter:
     def __init__(self, line):
@@ -118,15 +126,114 @@ def readSplitLine(f):
 def lineToIntList(line):
     return list(map(int, line))
 
+def strNumWorksheets(inst):
+    return "n_work_sheets = %d;" % (inst.numWorkSheets)
+
+def strNumActivities(inst):
+    numActivities = sum([ws.duration for ws in inst.worksheets])
+    return "m_activities = %d;" % (numActivities)
+
+def strHorizon(inst):
+    return "horizon = %d;" % (inst.days)
+
+def strRoads(inst):
+    return "l_roads = %d;" % (inst.numRoads)
+
+def strEast(inst):
+    easts = [str(ws.east) for ws in inst.worksheets]
+    return "east = [" + ",".join(easts) + "];"
+
+def strLast(inst):
+    lasts = [str(ws.last) for ws in inst.worksheets]
+    return "last = [" + ",".join(lasts) + "];"
+
+def strPrecedences(inst):
+    precs = []
+    for ws in inst.worksheets:
+        befs = [str(bef) for (bef,af) in inst.precedenceConstraints if ws.id == af]
+        foo = "{" + ",".join(befs) + "}"
+        precs.append(foo)
+    return "precedence = [" + ",".join(precs) + "];"
+
+def strDurations(inst):
+    durations = [str(ws.duration) for ws in inst.worksheets]
+    return "duration = [" + ",".join(durations) + "];"
+
+def strActivitiesRoads(inst):
+    as2rs = []
+    for ws in inst.worksheets:
+        as2rs += [str(r) for r in ws.roadIDs]
+    return "activities_to_roads = [" + ",".join(as2rs) + "];"
+
+def strPertubationCosts(inst):
+    perts = "pertubation_cost =\n [| "
+
+    # First l-1 roads
+    for i in range(len(inst.roads)-1):
+        road = inst.roads[i]
+        assert len(road.pertubationList()) == inst.days
+
+        for c in road.pertubationList():
+            perts += str(c) + ","
+        perts += "\n  | "
+
+    # Last road
+    road = inst.roads[len(inst.roads)-1]
+    pert = [str(c) for c in road.pertubationList()]
+    perts += ",".join(pert)
+    perts += " |];"
+    return perts
+
+def strSheetFirstAct(inst):
+    actCount = 0
+    starts = []
+    for ws in inst.worksheets:
+        starts += str(actCount)
+        actCount += ws.duration
+    return "sheet_to_first_act = [" + ",".join(starts) + "];"
+
+def strAct2Sheet(inst):
+    res = []
+    for ws in inst.worksheets:
+        res += [str(ws.id) for i in range(ws.duration)]
+    return "act_to_sheet = [" + ",".join(res) + "];"
+
+def createOutputFile(inst, outPath):
+    with open(outPath, "w") as outF:
+        outF.write(strNumWorksheets(inst))
+        outF.write("\n")
+        outF.write(strNumActivities(inst))
+        outF.write("\n")
+        outF.write(strHorizon(inst))
+        outF.write("\n")
+        outF.write(strRoads(inst))
+        outF.write("\n")
+        outF.write(strEast(inst))
+        outF.write("\n")
+        outF.write(strLast(inst))
+        outF.write("\n")
+        outF.write(strPrecedences(inst))
+        outF.write("\n")
+        outF.write(strDurations(inst))
+        outF.write("\n")
+        outF.write(strActivitiesRoads(inst))
+        outF.write("\n")
+        outF.write(strPertubationCosts(inst))
+        outF.write("\n")
+        outF.write(strSheetFirstAct(inst))
+        outF.write("\n")
+        outF.write(strAct2Sheet(inst))
+
 
 def main():
     expArgs = 1
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print("Too few arguments supplied")
         exit(1)
 
     inFileName = sys.argv[1]
+    outFileName = sys.argv[2]
 
     # print(inFileName)
 
@@ -140,6 +247,7 @@ def main():
     endtime = time.time()
     print("Finding implied: %f" % (endtime-starttime))
 
+    createOutputFile(inst, outFileName)
 
 
     # print(inst.workcenters[0].availableWorkers)
