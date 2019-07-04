@@ -17,7 +17,7 @@ array[work_sheets] of int: sheet_to_first_act; % mapping of worksheet to first a
 %array[work_sheets] of int: sheet_to_last_act; % mapping of worksheet to last activity
 array[activities] of int: act_to_sheet; % mapping of activity to worksheet
 
-set of int: set_sheet_to_first_act = {a|a in act_to_sheet};
+set of int: set_sheet_to_first_act = {a|a in sheet_to_first_act};
 set of int: work_sheets = 1..n_work_sheets; %index set used to later access the arrays
 set of int: activities = 1..m_activities;
 set of int: days = 1..horizon;
