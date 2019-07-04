@@ -31,6 +31,7 @@ array[work_sheets] of var int: t_w_k; % starting time of the worksheet, this we 
 
 array[activities] of var int: act_starting_times; % when do the activities start, the first activity of each sheet need to be constraint to be start at the same time as the sheet 
 % all need to be constraint to be constarint against each other 
+var set of int: set_act_starting_times = {a|a in act_starting_times};
 
 array[activities] of var int: act_ending_times; %when do the activities end, this is populated by constraing
 % ending times must be before the horizon
@@ -77,5 +78,6 @@ constraint forall(s in work_sheets)(
 % define objective funtion and solve
 
 %var int: obj = max( [pertubation_cost[activities_to_roads[a],act_starting_times[a]] | a in activities]);
+
 
 solve satisfy;
