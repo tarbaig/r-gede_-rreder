@@ -17,7 +17,7 @@ array[work_sheets] of int: sheet_to_first_act; % mapping of worksheet to first a
 %array[work_sheets] of int: sheet_to_last_act; % mapping of worksheet to last activity
 array[activities] of int: act_to_sheet; % mapping of activity to worksheet
 
-
+set of int: set_sheet_to_first_act = {a|a in act_to_sheet};
 set of int: work_sheets = 0..n_work_sheets-1; %index set used to later access the arrays
 set of int: activities = 0..m_activities-1;
 set of int: days = 0..horizon-1;
@@ -68,11 +68,11 @@ constraint max(act_ending_times) <= horizon;
 
 % constarint all activities of a sheet ( those between start and end ) to start after their predecessor ended
 constraint forall(s in work_sheets)(
-                  forall(a in activities where not a in sheet_to_first_act)
+                  forall(a in activities where not (a in set_sheet_to_first_act))
                     (act_starting_times[a]=act_starting_times[a-1]+1)); %this can be improved by adding constraints that reach farther [a]=[a-2]+2 ... an itterator over or by constrining to the offset from the first activity of the sheet? [a]=[first of sheet] + a-first_of_sheet
 %
 constraint forall(s in work_sheets)(
-                  forall(a in activities where not a  in sheet_to_first_act)
+                  forall(a in activities where not (a  in set_sheet_to_first_act))
                     (act_ending_times[a]=act_starting_times[a]+1));
 % define objective funtion and solve
 
