@@ -140,17 +140,17 @@ def strRoads(inst):
     return "l_roads = %d;" % (inst.numRoads)
 
 def strEast(inst):
-    easts = [str(ws.east) for ws in inst.worksheets]
+    easts = [str(ws.east+1) for ws in inst.worksheets]
     return "east = [" + ",".join(easts) + "];"
 
 def strLast(inst):
-    lasts = [str(ws.last) for ws in inst.worksheets]
+    lasts = [str(ws.last+1) for ws in inst.worksheets]
     return "last = [" + ",".join(lasts) + "];"
 
 def strPrecedences(inst):
     precs = []
     for ws in inst.worksheets:
-        befs = [str(bef) for (bef,af) in inst.precedenceConstraints if ws.id == af]
+        befs = [str(bef+1) for (bef,af) in inst.precedenceConstraints if ws.id == af]
         foo = "{" + ",".join(befs) + "}"
         precs.append(foo)
     return "precedence = [" + ",".join(precs) + "];"
@@ -162,7 +162,7 @@ def strDurations(inst):
 def strActivitiesRoads(inst):
     as2rs = []
     for ws in inst.worksheets:
-        as2rs += [str(r) for r in ws.roadIDs]
+        as2rs += [str(r+1) for r in ws.roadIDs]
     return "activities_to_roads = [" + ",".join(as2rs) + "];"
 
 def strPertubationCosts(inst):
@@ -188,14 +188,14 @@ def strSheetFirstAct(inst):
     actCount = 0
     starts = []
     for ws in inst.worksheets:
-        starts += str(actCount)
+        starts += str(actCount+1)
         actCount += ws.duration
     return "sheet_to_first_act = [" + ",".join(starts) + "];"
 
 def strAct2Sheet(inst):
     res = []
     for ws in inst.worksheets:
-        res += [str(ws.id) for i in range(ws.duration)]
+        res += [str(ws.id+1) for i in range(ws.duration)]
     return "act_to_sheet = [" + ",".join(res) + "];"
 
 def createOutputFile(inst, outPath):
