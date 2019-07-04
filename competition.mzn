@@ -76,6 +76,6 @@ constraint forall(s in work_sheets)(
                     (act_ending_times[a]=act_starting_times[a]+1));
 % define objective funtion and solve
 
-var int: obj = max( [pertubation_cost[activities_to_roads[a],act_starting_times[a]] | a in activities]);
+%var int: obj = max( [pertubation_cost[activities_to_roads[a],act_starting_times[a]] | a in activities]);
 
-solve maximize obj;
+solve satisfy;
