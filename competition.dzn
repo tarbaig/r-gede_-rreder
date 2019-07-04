@@ -1,7 +1,7 @@
 horizon = 42;
 n_work_sheets = 3;
 m_activities = 9;
-l_roads = 5
+l_roads = 5;
 
 days = 3;
 activities = 9;
