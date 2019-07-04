@@ -18,10 +18,10 @@ array[work_sheets] of int: sheet_to_first_act; % mapping of worksheet to first a
 array[activities] of int: act_to_sheet; % mapping of activity to worksheet
 
 set of int: set_sheet_to_first_act = {a|a in act_to_sheet};
-set of int: work_sheets = 0..n_work_sheets-1; %index set used to later access the arrays
-set of int: activities = 0..m_activities-1;
-set of int: days = 0..horizon-1;
-set of int: roads=0..l_roads-1;
+set of int: work_sheets = 1..n_work_sheets; %index set used to later access the arrays
+set of int: activities = 1..m_activities;
+set of int: days = 1..horizon;
+set of int: roads=1..l_roads;
 
 % we will need these later but initially all sheets are mandratory hence we do not need them now
 % array[work_sheets] of var bool: g_k; % is worksheet k executed? This we will branch on
@@ -41,7 +41,7 @@ array[activities] of var int: act_ending_times; %when do the activities end, thi
 % constraint forall(a in activities)(f_i[a]=g_k[act_to_sheet[a]]) 
 
 % constraint first activity of a work sheet to be at the same time as the starting time of the sheet 
-constraint forall(s in work_sheets)(act_starting_times[sheet_to_first_act[s]] = t_w_k[s]);
+constraint forall(s in work_sheets)( act_starting_times[sheet_to_first_act[s]] = t_w_k[s] );
 
 % constarint the starting time of the work sheet to be between the start and the end IFF its  wokr sheets to be activned (reificatio)
 constraint forall(s in work_sheets)(t_w_k[s] < last[s]);
