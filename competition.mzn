@@ -58,9 +58,8 @@ constraint forall(s in work_sheets)(east[s] < t_w_k[s]);
 %constraint forall(s in work_sheets) (mandratory[s] -> g_k[s]) % I AM NOT SURE IF THIS IS THE RIGHT WAY TO USE THE IMPLICATION.CHECK THAT
 
 % constraint worksheets to be in the reight order IFF they are active reification
-constraint forall(s in work_sheets)(
-                  forall(p in precedence[s])
-                        (t_w_k[p] + duration[p] <= t_w_k[s]));
+constraint forall(s in work_sheets ,p in precedence[s])
+                        (t_w_k[p] + duration[p] <= t_w_k[s]);
 
 %max horizon constraint
 constraint max(act_ending_times) <= horizon;
@@ -97,5 +96,5 @@ constraint forall(s in work_sheets,a in activities)
 %var int: obj = max( [pertubation_cost[activities_to_roads[a],act_starting_times[a]] | a in activities]);
 
 %constraint forall(a in activities) (isRoadBlocked[act_starting_times[a],activities_to_roads[a] ] )
-var int  :obj = max([sum([e|e in d])| d in activities_of_day]);
+var int  :obj = max([sum([pertubation_cost[activities_to_roads[e],d]|e in activities_of_day[d]])| d in days]);
 solve maximize obj;
