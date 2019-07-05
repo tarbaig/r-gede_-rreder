@@ -39,8 +39,8 @@ array[days] of var int : nblockedRoads;
 array[activities] of var 1..horizon: act_ending_times; %when do the activities end, this is populated by constraing
 % ending times must be before the horizon
 
-array[days] of var set of 1..horizon: activities_of_day;
-
+array[days] of var set of 1..m_activities: activities_of_day;
+array[days] of var opt set of 1..l_roads: roads_of_day;
 % CONSTRAINTS TO ADD%
 
 % Constrain activities to be active whenever their sheet is active initially all sheet are mandratory hence we do not need that now
@@ -67,6 +67,14 @@ constraint max(act_ending_times) <= horizon;
 
 %constraint each activitie to be in the set listing the activities per day on its day
 constraint forall(a in activities)(a in activities_of_day[act_starting_times[a]]);
+constraint forall(a,b in activities where a!=b)(not(a in activities_of_day[b]));
+constraint forall(d,b in days where d!=b)(activities_of_day[d] intersect activities_of_day[b] = {});
+
+%constraint te roads of the day to be matching for the activities of the day
+
+%constraint boolean matrix to mimic the activity day mapping
+constraint forall(d in days, a in activities where a in activities_of_day[d] )(isRoadBlocked[d,activities_to_roads[a]]=true);
+constraint forall(d in days, a in activities where not(a in activities_of_day[d]) )(isRoadBlocked[d,activities_to_roads[a]]=true);
 
 % constraint the maximum number of roads the be blocked at the same time to be 
 %ADD LATER 
@@ -82,13 +90,12 @@ constraint forall(s in work_sheets)(
                   forall(a in activities where not (a in set_sheet_to_first_act))
                     (act_starting_times[a]=act_starting_times[a-1]+1)); %this can be improved by adding constraints that reach farther [a]=[a-2]+2 ... an itterator over or by constrining to the offset from the first activity of the sheet? [a]=[first of sheet] + a-first_of_sheet
 %
-constraint forall(s in work_sheets)(
-                  forall(a in activities)
-                    (act_ending_times[a]=act_starting_times[a]+1));
+constraint forall(s in work_sheets,a in activities)
+                    (act_ending_times[a]=act_starting_times[a]+1);
 % define objective funtion and solve
 
 %var int: obj = max( [pertubation_cost[activities_to_roads[a],act_starting_times[a]] | a in activities]);
 
 %constraint forall(a in activities) (isRoadBlocked[act_starting_times[a],activities_to_roads[a] ] )
-
-solve satisfy;
+var int  :obj = max([sum([e|e in d])| d in activities_of_day]);
+solve maximize obj;
