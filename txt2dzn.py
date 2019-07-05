@@ -156,8 +156,8 @@ def strPrecedences(inst):
     return "precedence = [" + ",".join(precs) + "];"
 
 def strDurations(inst):
-    durations = [str(ws.duration) for ws in inst.worksheets]
-    return "duration = [" + ",".join(durations) + "];"
+    durations = [ws.duration for ws in inst.worksheets]
+    return "duration = " + str(durations) + ";"
 
 def strActivitiesRoads(inst):
     as2rs = []
@@ -188,15 +188,15 @@ def strSheetFirstAct(inst):
     actCount = 0
     starts = []
     for ws in inst.worksheets:
-        starts += str(actCount+1)
+        starts.append(actCount+1)
         actCount += ws.duration
-    return "sheet_to_first_act = [" + ",".join(starts) + "];"
+    return "sheet_to_first_act = " + str(starts) + ";"
 
 def strAct2Sheet(inst):
     res = []
     for ws in inst.worksheets:
-        res += [str(ws.id+1) for i in range(ws.duration)]
-    return "act_to_sheet = [" + ",".join(res) + "];"
+        res += [ws.id+1 for i in range(ws.duration)]
+    return "act_to_sheet = " + str(res) + ";"
 
 def createOutputFile(inst, outPath):
     with open(outPath, "w") as outF:
