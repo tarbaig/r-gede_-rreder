@@ -97,4 +97,4 @@ constraint forall(s in work_sheets,a in activities)
 
 %constraint forall(a in activities) (isRoadBlocked[act_starting_times[a],activities_to_roads[a] ] )
 var int  :obj = max([sum([pertubation_cost[activities_to_roads[e],d]|e in activities_of_day[d]])| d in days]);
-solve maximize obj;
+solve minimize obj;
